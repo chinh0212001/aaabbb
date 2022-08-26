@@ -2,10 +2,12 @@ package view;
 
 import config.Config;
 import controller.UserController;
+import dto.request.SignInDTO;
 import dto.request.SignUpDTO;
 import dto.response.ResponseMessenger;
 import model.User;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +21,7 @@ public class ViewMainMenu {
             System.out.println("-------Menu--------");
             System.out.println("1. Show user list");
             System.out.println("2. Register");
+            System.out.println("3. Login");
 
             int choice = Integer.parseInt(Config.scanner().nextLine());
             switch (choice) {
@@ -28,11 +31,52 @@ public class ViewMainMenu {
                 case 2:
                     fromRegister();
                     break;
+                case 3:
+                    fromLogin();
+                    break;
                 default:
                     System.out.println("Invalid choice");
             }
              menu();
         }
+
+    private void fromLogin() {
+        //username
+        String username;
+        while (true){
+            System.out.println("Enter username: ");
+            username = Config.scanner().nextLine();
+            if (username.matches("[a-zA-Z]{1,30}")){
+                break;
+            }else {
+                System.out.println("Invalid username, try again!");
+            }
+        }
+        //password
+        String password;
+        while (true){
+            System.out.println("Enter password: ");
+            password = Config.scanner().nextLine();
+            if (password.matches("[a-zA-Z0-9]{1,40}")){
+                break;
+            }else {
+                System.out.println("Invalid password, try again!");
+            }
+        }
+        SignInDTO signInDTO = new SignInDTO(username,password);
+        ResponseMessenger responseMessenger = userController.login(signInDTO);
+        switch (responseMessenger.getMessage()){
+            case "Login_success":
+                System.out.println("Login successful!");
+                new ViewHome();
+                break;
+            case "Login_failure":
+                System.out.println("Username or password is incorrect!");
+                break;
+        }
+
+
+    }
 
     private void fromRegister() {
         System.out.println("======REGISTER======");
@@ -59,7 +103,7 @@ public class ViewMainMenu {
         while (true){
             System.out.println("Enter username: ");
             username = Config.scanner().nextLine();
-            if (username.matches("[A-Z][a-zA-Z]{1,30}")){
+            if (username.matches("[a-zA-Z]{1,30}")){
                 break;
             }else {
                 System.out.println("Invalid username, try again!");
@@ -116,7 +160,7 @@ public class ViewMainMenu {
     private void fromShowListUser() {
         System.out.printf("%-15s%s%n","User","Role");
         for (User user : userList ) {
-            System.out.printf("%-15s%s%n",user.getUsername(),user.getRoles());
+            System.out.printf("%-15s%s%n",user.getUsername(),new ArrayList<>(user.getRoles()).get(0).getRoleName());
         }
     }
 }
